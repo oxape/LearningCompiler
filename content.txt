@@ -1,0 +1,145 @@
+目录
+1 introduction
+1.1 language processors
+1.2 the structure of a compiler
+1.3 the evolution of programming languages
+1.4 the science of building a compiler
+1.5 applications of compiler technology
+1.6 programming language basics
+1.7 summary of chapter 1
+1.8 references for chapter 1
+2 a simple syntax-directed translator
+2.1 introduction
+2.2 syntax definition
+2.3 syntax-directed translation
+2.4 parsing
+2.5 a translator for simple expressions
+2.6 lexical analysis
+2.7 symbol tables
+2.8 intermediate code generation
+2.9 summary of chapter 2
+
+3 lexical analysis
+3.1 the role of the lexical analyzer
+3.2 input buffering
+3.3 specification of tokens
+3.4 recognition of tokens
+3.5 the lexical-analyzer generator lex
+3.6 finite automata
+3.7 from regular expressions to automata
+3.8 design of a lexical-analyzer generator
+3.9 optimization of dfa-based pattern matchers
+3.10 summary of chapter 3
+3.11 references for chapter 3
+4 syntax analysis
+4.1 introduction
+4.2 context-free grammars
+4.3 writing a grammar
+4.4 top-down parsing
+4.5 bottom-up parsing
+4.6 introduction to lr parsing: simple lr
+4.7 more powerful lr parsers
+4.8 using ambiguous grammars
+4.9 parser generators
+4.10 summary of chapter 4
+4.11 references for chapter 4
+5 syntax-directed translation
+5.1 syntax-directed definitions
+5.2 evaluation orders for sdd's
+5.3 applications of syntax-directed translation
+5.4 syntax-directed translation schemes
+5.5 hnplementing l-attributed sdd's
+5.6 summary of chapter 5
+5.7 references for chapter 5
+6 intermediate-code generation
+6.1 variants of syntax trees
+6.2 three-address code
+6.3 types and declarations
+6.4 translation of expressions
+6.5 type checking
+6.6 control flow
+6.7 backpatching
+6.8 switch-statements
+6.9 intermediate code for procedures
+6.10 summary of chapter 6
+6.11 references for chapter 6
+7 run-time environments
+7.1 storage organization
+7.2 stack allocation of space
+7.3 access to nonlocal data on the stack
+7.4 heap management
+7.5 introduction to garbage collection
+7.6 introduction to trace-based collection
+7.7 short-pause garbage collection
+7.8 advanced topics in garbage collection
+7.9 summary of chapter 7
+7.10 references for chapter 7
+8 code generation
+8.1 issues m the design of a code generator
+8.2 the target language
+8.3 addresses in the target code
+8.4 basic blocks and flow graphs
+8.5 optimization of basic blocks
+8.6 a simple code generator
+8.7 peephole optimization
+8.8 register allocation and assignment
+8.9 instruction selection by tree rewriting
+8.10 optimal code generation for expressions
+8.11 dynamic programming code-generation
+8.12 summary of chapter 8
+8.13 references for chapter 8
+9 machine-independent optimizations
+9.1 the principal sources of optimization
+9.2 introduction to data-flow analysis
+9.3 foundations of data-flow analysis
+9.4 constant propagation
+9.5 partial-redundancy elimination
+9.6 loops in flow graphs
+9.7 region-based analysis
+9.8 symbolic analysis
+9.9 summary of chapter 9
+9.10 references for chapter 9
+10 instruction-level parallelism
+10.1 processor architectures
+10.2 code-scheduling constraints
+10.3 basic-block scheduling
+10.4 global code scheduling
+10.5 software pipelining
+10.6 summary of chapter 10
+10.7 references for chapter 10
+11 optimizing for parallelism and locality
+11.1 basic concepts
+11.2 matrix multiply: an in-depth example
+11.3 iteration spaces
+11.4 aftlne array indexes
+11.5 data reuse
+11.6 array data-dependence analysis
+11.7 finding synchronization-free parallelism
+11.8 synchronization between parallel loops
+11.9 pipelining
+11.10 locality optimizations
+11.11 other uses of affine transforms
+11.12 summarv of chapter 11
+11.13 references for chapter 11
+12 interprocedural analysis
+12.1 basic concepts
+12.2 why interprocedural analysis?
+12.3 a logical representation of data flow
+12.4 a simple pointer-analysis algorithm
+12.5 context-insensitive interprocedural analysis
+12.6 context-sensitive pointer analysis
+12.7 datalog implementation by bdd's
+12.8 summary of chapter 12
+12.9 references for chapter 12
+a a complete front end
+a.1 the source language
+a.2 main
+a.3 lexical analyzer
+a.4 symbol tables and types
+a.5 intermediate code for expressions
+a.6 jumping code for boolean expressions
+a.7 intermediate code for statements
+a.8 parser
+a.9 creating the front end
+b finding linearly independent solutions
+index
