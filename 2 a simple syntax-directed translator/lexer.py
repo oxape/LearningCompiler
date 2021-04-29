@@ -1,5 +1,7 @@
 import sys
 
+# 编译原理  2.6.5 词法分析器
+
 
 class Tag:
     NUM = 256

@@ -1,7 +1,11 @@
 import sys
 
-class SyntaxError(Exception):
+# 编译原理  2.4.2 预测分析法  2.5 简单表达式的翻译器
+
+
+class ParseSyntaxError(Exception):
     pass
+
 
 class Parser:
     def __init__(self):
@@ -12,11 +16,13 @@ class Parser:
         while True:
             if self.lookahead == '+':
                 self.match('+')
-                self.expr() #这里为自己修改后支持*
+                # 这里为自己修改后支持*
+                self.expr()
                 sys.stdout.write('+')
             elif self.lookahead == '-':
                 self.match('-')
-                self.expr() #这里为自己修改后支持*
+                # 这里为自己修改后支持*
+                self.expr()
                 sys.stdout.write('-')
             elif self.lookahead == '*':
                 self.match('*')
@@ -30,13 +36,14 @@ class Parser:
             sys.stdout.write(self.lookahead)
             self.match(self.lookahead)
         else:
-            raise SyntaxError('syntax error')
+            raise ParseSyntaxError('syntax error')
 
     def match(self, t):
         if self.lookahead == t:
             self.lookahead = sys.stdin.read(1)
         else:
-            raise SyntaxError('syntax error')
+            raise ParseSyntaxError('syntax error')
+
 
 class Postfix(object):
     @classmethod
@@ -47,5 +54,11 @@ class Postfix(object):
 
 
 if __name__ == '__main__':
-    Postfix.main()
+    while True:
+        try:
+            Postfix.main()
+        except KeyboardInterrupt:
+            print('Keyboard interrupt in main')
+            break
+
 
