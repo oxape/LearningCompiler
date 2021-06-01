@@ -1,3 +1,3 @@
-S -> i E t S S'
-S' -> eS | epsilon
-E -> b
+S -> i E t S S'.
+S' -> e S |.
+E -> b.

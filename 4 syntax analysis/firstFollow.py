@@ -1,5 +1,7 @@
 import argparse
 
+epsilon = '\u0190'
+
 
 class ParseError(Exception):
     pass
@@ -22,7 +24,7 @@ class Parser:
         productions = []
         self.match_space()
         while self.next < self.length:
-            right = self.sysmbol()
+            right = self.symbol()
             if right == '|':
                 productions.append((left, sysmbols))
                 sysmbols = []
@@ -31,6 +33,10 @@ class Parser:
             if self.next >= self.length:
                 break
             self.match_space()
+            if self.next >= self.length:
+                break
+            if self.buffer[self.next] == '.':
+                break
         productions.append((left, sysmbols))
         return productions
 
@@ -40,16 +46,16 @@ class Parser:
             raise ParseError('syntax error')
         self.next += 1
         while self.next < self.length:
-            if self.buffer[self.next].isspace():
+            if self.buffer[self.next].isspace() or self.buffer[self.next] == '.':
                 break
             else:
                 self.next += 1
         return self.buffer[start:self.next]
 
-    def sysmbol(self):
+    def symbol(self):
         start = self.next
         while self.next < self.length:
-            if self.buffer[self.next].isspace():
+            if self.buffer[self.next].isspace() or self.buffer[self.next] == '.':
                 break
             else:
                 self.next += 1
@@ -68,6 +74,29 @@ class Parser:
             else:
                 break
 
+def first(symbol, isterminal):
+
+
+def first_and_follow(rules):
+    nonterminal_set = set()
+    nonterminals = []
+    terminal_set = set()
+    terminals = []
+    for s, l in rules:
+        if s not in nonterminal_set:
+            nonterminal_set.add(s)
+            nonterminals.append(s)
+    for s, l in rules:
+        for e in l:
+            if e not in nonterminal_set and e not in terminal_set:
+                terminal_set.add(e)
+                terminals.append(e)
+    for s, l in rules:
+        print(f'{s} -> {" ".join(l)}')
+    print(nonterminals)
+    print(terminals)
+    for nonterminal in nonterminals:
+        if
 
 def parse_line(line):
     line = line.strip()
@@ -80,9 +109,10 @@ def parse_file(file_path):
     with open(file_path) as f:
         for line in f:
             rules.extend(parse_line(line))
-    print(rules)
     for s, l in rules:
-        print(f'{s} -> {" ".join(l)}')
+        if len(l) == 0:
+            l.append(epsilon)
+    return rules
 
 
 if __name__ == '__main__':
@@ -92,4 +122,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print(args.file)
     for file in args.file:
-        parse_file(file)
+        rules = parse_file(file)
+        first_and_follow(rules)
