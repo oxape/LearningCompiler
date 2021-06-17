@@ -1,3 +1,5 @@
 S -> i E t S S'.
 S' -> e S |.
 E -> b.
+S' -> X1
+X1 -> S' x |.
