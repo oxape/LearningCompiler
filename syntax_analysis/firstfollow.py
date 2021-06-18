@@ -126,8 +126,8 @@ def first(s, rules, terminal_set, first_dict):
                         las.set.add(se)
                 if epsilon not in first_dict[e].set:
                     break
-            end = index
-        if end+1 == len(l):
+            end = index+1
+        if end == len(l):
             if epsilon in first_dict[l[-1]].set:
                 if epsilon not in las.set:
                     print(f'3 add {epsilon} to FIRST({s})')
@@ -163,16 +163,16 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
                             print(f'1 add {se} to FOLLOW({s})')
                             las.list.append(se)
                             las.set.add(se)
-                end = index
+                end = index+1
                 for i, se in enumerate(l[index+1:]):
                     if epsilon not in first_dict[se].set:
                         break
-                    end = index+1+i
+                    end = index+1+i+1
                 """
                 这里处理的情况是 A -> a B X1 X2 X3 ... Xn
                 上述产生式的右侧 X1 ~ Xn的FIRST集合都包含Ɛ，FOLLOW(A)是FOLLOW(B)的子集
                 """
-                if end + 1 == len(l):
+                if end == len(l):
                     if t == s:
                         continue
                     if not second:

@@ -27,8 +27,6 @@ def build_predictive_map(file_path):
     predictive_map = {}
     print('############ build_predictive_map ############')
     for s, l in rules:
-        if s == "F":
-            print(s)
         s_map = predictive_map.get(s, None)
         if s_map is None:
             s_map = {}
@@ -45,8 +43,8 @@ def build_predictive_map(file_path):
                 las.set.add(production)
             if epsilon not in first_dict[e].set:
                 break
-            end = index
-        if end + 1 == len(l):
+            end = index+1
+        if end == len(l):
             for se in follow_dict[s].list:
                 las = get_las_from_dict(s_map, se)
                 las.list.append(production)
