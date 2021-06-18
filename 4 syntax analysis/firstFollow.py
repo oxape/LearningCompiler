@@ -5,7 +5,7 @@ import argparse
 
 epsilon = '\u0190'
 dollar = '\u0024'
-
+start = ''
 
 class ParseError(Exception):
     pass
@@ -101,7 +101,7 @@ def first(s, rules, terminal_set, first_dict):
     for t, l in rules:
         if t != s:
             continue
-        print(f'    process {s} -> {" ".join(l)} -- for {s}')
+        print(f'    process {t} -> {" ".join(l)} -- for {s}')
         end = 0
         for index, e in enumerate(l):
             if e == epsilon:
@@ -133,49 +133,46 @@ def first(s, rules, terminal_set, first_dict):
     print(f'------------{s}------------')
 
 
-def follow(s, rules, terminal_set, first_dict, follow_dict):
-    las = first_dict.get(s, None)
-    if las is not None:
-        return
-    las = ListAndSet()
+def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
+    las = follow_dict.get(s, None)
+    if not second:
+        if las is not None:
+            return
+        las = ListAndSet()
+        if s == start:
+            las.list.append(dollar)
+            las.set.add(dollar)
+        follow_dict[s] = las
+    else:
+        if las is None:
+            return
     print(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
     for t, l in rules:
-        print(f'    process {s} -> {" ".join(l)} -- for {s}')
-        end = 0
+        print(f'    process {t} -> {" ".join(l)} -- for {s}')
         for index, e in enumerate(l):
             if e == s:
-                if index+1 == len(l):
-                    if dollar not in las.set:
-                        # print(f'1 add {dollar} to FIRST({dollar})')
-                        las.list.append(dollar)
-                        las.set.add(se)
-                if len(l) == 1:
-                    first(e, rules, terminal_set, first_dict)
-                    for se in first_dict[e].list:
-                        if se not in las.set:
-                            print(f'1 add {se} to FIRST({s})')
+                if index+1 < len(l):
+                    for se in first_dict[l[index+1]].list:
+                        if se != epsilon and se not in las.set:
+                            print(f'1 add {se} to FOLLOW({s})')
                             las.list.append(se)
                             las.set.add(se)
-            else:
-                first(e, rules, terminal_set, first_dict)
-                for se in first_dict[e].list:
-                    if se == epsilon:
+                end = index
+                for i, se in enumerate(l[index+1:]):
+                    if epsilon not in first_dict[se].set:
+                        break
+                    end = i
+                if end + 1 == len(l):
+                    if t == s:
                         continue
-                    if se not in las.set:
-                        print(f'2 add {se} to FIRST({s})')
-                        las.list.append(se)
-                        las.set.add(se)
-                if epsilon not in first_dict[e].set:
-                    break
-            end = index
-        if end + 1 == len(l):
-            if epsilon in first_dict[l[-1]].set:
-                if epsilon not in las.set:
-                    print(f'3 add {epsilon} to FIRST({s})')
-                    las.list.append(epsilon)
-                    las.set.add(epsilon)
+                    if not second:
+                        follow(t, rules, terminal_set, first_dict, follow_dict, second)
+                    for se in follow_dict[t].list:
+                        if se not in las.set:
+                            print(f'2 add {se} to FOLLOW({s})')
+                            las.list.append(se)
+                            las.set.add(se)
     print(f'------------{s}------------')
-    follow_dict[s] = las
 
 
 def first_and_follow(rules):
@@ -186,6 +183,7 @@ def first_and_follow(rules):
     first_dict = {}
     follow_dict = {}
     unprocessed_nonterminal_set = set()
+    start = rules[0][0]
     for s, l in rules:
         if s not in nonterminal_set:
             nonterminal_set.add(s)
@@ -200,14 +198,24 @@ def first_and_follow(rules):
         print(f'{s} -> {" ".join(l)}')
     print(nonterminals)
     print(terminals)
+    print(f'############first############')
     for s in nonterminals:
         first(s, rules, terminal_set, first_dict)
     for s in terminals:
         first(s, rules, terminal_set, first_dict)
-    # for s in nonterminals:
-    #     follow(s, rules, terminal_set, first_dict, follow_dict)
+    print(f'############follow############')
+    print(f'start = {start}')
+    print(f'############   1   ############')
+    for s in nonterminals:
+        follow(s, rules, terminal_set, first_dict, follow_dict, set())
+    # 第二遍主要扫描有右递归的产生式
+    print(f'############   2   ############')
+    for s in nonterminals:
+        follow(s, rules, terminal_set, first_dict, follow_dict, nonterminals)
     for s in nonterminals:
         print(f'FIRST({s}) -> {{{" ".join(first_dict[s].list)}}}')
+    for s in nonterminals:
+        print(f'FOLLOW({s}) -> {{{" ".join(follow_dict[s].list)}}}')
 
 
 def parse_line(line):
