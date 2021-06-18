@@ -7,6 +7,7 @@ epsilon = '\u0190'
 dollar = '\u0024'
 start = ''
 
+
 class ParseError(Exception):
     pass
 
@@ -18,6 +19,8 @@ class Parser:
         self.next = 0
 
     def production(self):
+        if self.buffer.startswith('##'):
+            return None
         left = self.nonterminal()
         self.match_space()
         self.match('-')
@@ -139,6 +142,7 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
         if las is not None:
             return
         las = ListAndSet()
+        global start
         if s == start:
             las.list.append(dollar)
             las.set.add(dollar)
@@ -146,6 +150,8 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
     else:
         if las is None:
             return
+    if s == 'T':
+        print('debug')
     print(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
     for t, l in rules:
         print(f'    process {t} -> {" ".join(l)} -- for {s}')
@@ -161,7 +167,11 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
                 for i, se in enumerate(l[index+1:]):
                     if epsilon not in first_dict[se].set:
                         break
-                    end = i
+                    end = index+1+i
+                """
+                这里处理的情况是 A -> a B X1 X2 X3 ... Xn
+                上述产生式的右侧 X1 ~ Xn的FIRST集合都包含Ɛ，FOLLOW(A)是FOLLOW(B)的子集
+                """
                 if end + 1 == len(l):
                     if t == s:
                         continue
@@ -176,6 +186,8 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
 
 
 def first_and_follow(rules):
+    if len(rules) == 0:
+        return
     nonterminal_set = set()
     nonterminals = []
     terminal_set = set()
@@ -183,6 +195,7 @@ def first_and_follow(rules):
     first_dict = {}
     follow_dict = {}
     unprocessed_nonterminal_set = set()
+    global start
     start = rules[0][0]
     for s, l in rules:
         if s not in nonterminal_set:
@@ -212,10 +225,16 @@ def first_and_follow(rules):
     print(f'############   2   ############')
     for s in nonterminals:
         follow(s, rules, terminal_set, first_dict, follow_dict, nonterminals)
+    maxlen = 0
     for s in nonterminals:
-        print(f'FIRST({s}) -> {{{" ".join(first_dict[s].list)}}}')
+        if len(s) > maxlen:
+            maxlen = len(s)
+    follow_len = len("FOLLOW()")
+    maxlen += follow_len
     for s in nonterminals:
-        print(f'FOLLOW({s}) -> {{{" ".join(follow_dict[s].list)}}}')
+        print('{0:<{width}} {1} {{ {2} }}'.format("FIRST("+s+")", "=", " ".join(first_dict[s].list), width=maxlen))
+    for s in nonterminals:
+        print('{0:<{width}} {1} {{ {2} }}'.format("FOLLOW("+s+")", "=", " ".join(follow_dict[s].list), width=maxlen))
 
 
 def parse_line(line):
@@ -228,7 +247,10 @@ def parse_file(file_path):
     rules = []
     with open(file_path) as f:
         for line in f:
-            rules.extend(parse_line(line))
+            rule = parse_line(line)
+            if rule is None:
+                continue
+            rules.extend(rule)
     for s, l in rules:
         if len(l) == 0:
             l.append(epsilon)
