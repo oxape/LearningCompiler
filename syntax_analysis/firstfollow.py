@@ -235,6 +235,7 @@ def first_and_follow(rules):
         print('{0:<{width}} {1} {{ {2} }}'.format("FIRST("+s+")", "=", " ".join(first_dict[s].list), width=maxlen))
     for s in nonterminals:
         print('{0:<{width}} {1} {{ {2} }}'.format("FOLLOW("+s+")", "=", " ".join(follow_dict[s].list), width=maxlen))
+    return first_dict, follow_dict, nonterminals, terminals
 
 
 def parse_line(line):
