@@ -1,7 +1,8 @@
 import argparse
-import prettytable as pt
 import sys
 import os
+from tabulate import tabulate
+import logging
 
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
@@ -11,6 +12,10 @@ from syntax_analysis.firstfollow import parse_file
 from syntax_analysis.firstfollow import first_and_follow
 from syntax_analysis.firstfollow import ListAndSet
 from syntax_analysis.firstfollow import epsilon
+
+
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger(__name__)
 
 
 def get_las_from_dict(d, key):
@@ -25,6 +30,8 @@ def build_predictive_map(file_path):
     rules = parse_file(file)
     first_dict, follow_dict, nonterminals, terminals = first_and_follow(rules)
     predictive_map = {}
+    for s, l in rules:
+        print(f'{s} -> {" ".join(l)}')
     print('############ build_predictive_map ############')
     for s, l in rules:
         s_map = predictive_map.get(s, None)
@@ -41,6 +48,7 @@ def build_predictive_map(file_path):
                 las = get_las_from_dict(s_map, se)
                 las.list.append(production)
                 las.set.add(production)
+                logging.info("FIRST  [{0} {1}] = {2}".format(s, se, production))
             if epsilon not in first_dict[e].set:
                 break
             end = index+1
@@ -49,9 +57,26 @@ def build_predictive_map(file_path):
                 las = get_las_from_dict(s_map, se)
                 las.list.append(production)
                 las.set.add(production)
+                logging.info("FOLLOW [{0} {1}] = {2}".format(s, se, production))
     field_names = [' ']
+    header = []
+    header.extend(terminals)
+    header.append("$")
+    field_names.extend(header)
+    table = [field_names]
+    for nt in nonterminals:
+        columns = [nt]
+        s_map = predictive_map.get(nt, None)
+        for t in header:
+            las = s_map.get(t, None)
+            if las is None:
+                columns.append(' ')
+            else:
+                columns.append("\n".join(las.list))
+        table.append(columns)
+    """
     field_names.extend(["id", "+", "*", "(", ")", "$"])
-    tb = pt.PrettyTable(field_names)
+    table = [field_names]
     for nt in ['E', "E'", "T", "T'", "F"]:
         columns = [nt]
         s_map = predictive_map.get(nt, None)
@@ -61,8 +86,9 @@ def build_predictive_map(file_path):
                 columns.append(' ')
             else:
                 columns.append("\n".join(las.list))
-        tb.add_row(columns)
-    print(tb)
+        table.append(columns)
+    """
+    print(tabulate(table, headers='firstrow', tablefmt='grid'))
 
 
 if __name__ == '__main__':

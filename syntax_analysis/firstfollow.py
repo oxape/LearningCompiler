@@ -19,7 +19,9 @@ class Parser:
         self.next = 0
 
     def production(self):
-        if self.buffer.startswith('##'):
+        if len(self.buffer) == 0:
+            return None
+        if self.buffer.startswith('#'):
             return None
         left = self.nonterminal()
         self.match_space()
@@ -48,7 +50,7 @@ class Parser:
         return productions
 
     def nonterminal(self):
-        start = self.next
+        start_index = self.next
         if not self.buffer[self.next].isalpha():
             raise ParseError('syntax error')
         self.next += 1
@@ -57,7 +59,7 @@ class Parser:
                 break
             else:
                 self.next += 1
-        return self.buffer[start:self.next]
+        return self.buffer[start_index:self.next]
 
     def symbol(self):
         start = self.next
@@ -150,8 +152,6 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
     else:
         if las is None:
             return
-    if s == 'T':
-        print('debug')
     print(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
     for t, l in rules:
         print(f'    process {t} -> {" ".join(l)} -- for {s}')
