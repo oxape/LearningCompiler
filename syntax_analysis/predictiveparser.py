@@ -31,8 +31,8 @@ def build_predictive_map(file_path):
     first_dict, follow_dict, nonterminals, terminals = first_and_follow(rules)
     predictive_map = {}
     for s, l in rules:
-        print(f'{s} -> {" ".join(l)}')
-    print('############ build_predictive_map ############')
+        logging.info(f'{s} -> {" ".join(l)}')
+    logging.info('############ build_predictive_map ############')
     for s, l in rules:
         s_map = predictive_map.get(s, None)
         if s_map is None:
@@ -60,6 +60,7 @@ def build_predictive_map(file_path):
                 logging.info("FOLLOW [{0} {1}] = {2}".format(s, se, production))
     field_names = [' ']
     header = []
+    terminals.remove(epsilon)
     header.extend(terminals)
     header.append("$")
     field_names.extend(header)
@@ -74,21 +75,7 @@ def build_predictive_map(file_path):
             else:
                 columns.append("\n".join(las.list))
         table.append(columns)
-    """
-    field_names.extend(["id", "+", "*", "(", ")", "$"])
-    table = [field_names]
-    for nt in ['E', "E'", "T", "T'", "F"]:
-        columns = [nt]
-        s_map = predictive_map.get(nt, None)
-        for t in ["id", "+", "*", "(", ")", "$"]:
-            las = s_map.get(t, None)
-            if las is None:
-                columns.append(' ')
-            else:
-                columns.append("\n".join(las.list))
-        table.append(columns)
-    """
-    print(tabulate(table, headers='firstrow', tablefmt='grid'))
+    logging.info(tabulate(table, headers='firstrow', tablefmt='grid'))
 
 
 if __name__ == '__main__':
@@ -96,6 +83,6 @@ if __name__ == '__main__':
     parser.add_argument('file', type=str, nargs='+', help='input file')
 
     args = parser.parse_args()
-    print(args.file)
+    logging.info(args.file)
     for file in args.file:
         build_predictive_map(file)

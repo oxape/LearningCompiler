@@ -2,6 +2,7 @@
 使用前需要建议先消除文法中的左递归，也许可以处理左递归，但也可能发生什么一些我也无法预测的事情
 """
 import argparse
+import logging
 
 epsilon = '\u0190'
 dollar = '\u0024'
@@ -102,11 +103,11 @@ def first(s, rules, terminal_set, first_dict):
         las.set.add(s)
         first_dict[s] = las
         return
-    print(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
+    logging.debug(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
     for t, l in rules:
         if t != s:
             continue
-        print(f'    process {t} -> {" ".join(l)} -- for {s}')
+        logging.debug(f'    process {t} -> {" ".join(l)} -- for {s}')
         end = 0
         for index, e in enumerate(l):
             if e == epsilon:
@@ -114,7 +115,7 @@ def first(s, rules, terminal_set, first_dict):
                     first(e, rules, terminal_set, first_dict)
                     for se in first_dict[e].list:
                         if se not in las.set:
-                            print(f'1 add {se} to FIRST({s})')
+                            logging.debug(f'1 add {se} to FIRST({s})')
                             las.list.append(se)
                             las.set.add(se)
             else:
@@ -123,7 +124,7 @@ def first(s, rules, terminal_set, first_dict):
                     if se == epsilon:
                         continue
                     if se not in las.set:
-                        print(f'2 add {se} to FIRST({s})')
+                        logging.debug(f'2 add {se} to FIRST({s})')
                         las.list.append(se)
                         las.set.add(se)
                 if epsilon not in first_dict[e].set:
@@ -132,10 +133,10 @@ def first(s, rules, terminal_set, first_dict):
         if end == len(l):
             if epsilon in first_dict[l[-1]].set:
                 if epsilon not in las.set:
-                    print(f'3 add {epsilon} to FIRST({s})')
+                    logging.info(f'3 add {epsilon} to FIRST({s})')
                     las.list.append(epsilon)
                     las.set.add(epsilon)
-    print(f'------------{s}------------')
+    logging.debug(f'------------{s}------------')
 
 
 def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
@@ -152,15 +153,15 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
     else:
         if las is None:
             return
-    print(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
+    logging.debug(f'^^^^^^^^^^^^{s}^^^^^^^^^^^^')
     for t, l in rules:
-        print(f'    process {t} -> {" ".join(l)} -- for {s}')
+        logging.debug(f'    process {t} -> {" ".join(l)} -- for {s}')
         for index, e in enumerate(l):
             if e == s:
                 if index+1 < len(l):
                     for se in first_dict[l[index+1]].list:
                         if se != epsilon and se not in las.set:
-                            print(f'1 add {se} to FOLLOW({s})')
+                            logging.debug(f'1 add {se} to FOLLOW({s})')
                             las.list.append(se)
                             las.set.add(se)
                 end = index+1
@@ -179,10 +180,10 @@ def follow(s, rules, terminal_set, first_dict, follow_dict, second=False):
                         follow(t, rules, terminal_set, first_dict, follow_dict, second)
                     for se in follow_dict[t].list:
                         if se not in las.set:
-                            print(f'2 add {se} to FOLLOW({s})')
+                            logging.debug(f'2 add {se} to FOLLOW({s})')
                             las.list.append(se)
                             las.set.add(se)
-    print(f'------------{s}------------')
+    logging.debug(f'------------{s}------------')
 
 
 def first_and_follow(rules):
@@ -208,21 +209,21 @@ def first_and_follow(rules):
                 terminals.append(e)
     unprocessed_nonterminal_set.update(nonterminals)
     for s, l in rules:
-        print(f'{s} -> {" ".join(l)}')
-    print(nonterminals)
-    print(terminals)
-    print(f'############first############')
+        logging.debug(f'{s} -> {" ".join(l)}')
+    logging.debug(nonterminals)
+    logging.debug(terminals)
+    logging.debug(f'############first############')
     for s in nonterminals:
         first(s, rules, terminal_set, first_dict)
     for s in terminals:
         first(s, rules, terminal_set, first_dict)
-    print(f'############follow############')
-    print(f'start = {start}')
-    print(f'############   1   ############')
+    logging.debug(f'############follow############')
+    logging.debug(f'start = {start}')
+    logging.debug(f'############   1   ############')
     for s in nonterminals:
         follow(s, rules, terminal_set, first_dict, follow_dict, set())
     # 第二遍主要扫描有右递归的产生式
-    print(f'############   2   ############')
+    logging.debug(f'############   2   ############')
     for s in nonterminals:
         follow(s, rules, terminal_set, first_dict, follow_dict, nonterminals)
     maxlen = 0
@@ -232,9 +233,9 @@ def first_and_follow(rules):
     follow_len = len("FOLLOW()")
     maxlen += follow_len
     for s in nonterminals:
-        print('{0:<{width}} {1} {{ {2} }}'.format("FIRST("+s+")", "=", " ".join(first_dict[s].list), width=maxlen))
+        logging.debug('{0:<{width}} {1} {{ {2} }}'.format("FIRST("+s+")", "=", " ".join(first_dict[s].list), width=maxlen))
     for s in nonterminals:
-        print('{0:<{width}} {1} {{ {2} }}'.format("FOLLOW("+s+")", "=", " ".join(follow_dict[s].list), width=maxlen))
+        logging.debug('{0:<{width}} {1} {{ {2} }}'.format("FOLLOW("+s+")", "=", " ".join(follow_dict[s].list), width=maxlen))
     return first_dict, follow_dict, nonterminals, terminals
 
 
@@ -263,7 +264,7 @@ if __name__ == '__main__':
     parser.add_argument('file', type=str, nargs='+', help='input file')
 
     args = parser.parse_args()
-    print(args.file)
+    logging.info(args.file)
     for file in args.file:
         rules = parse_file(file)
         first_and_follow(rules)

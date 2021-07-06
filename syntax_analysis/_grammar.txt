@@ -1,9 +1,14 @@
-S -> i E t S S' | a.
-S' -> e S |.
-E -> b.
+#S -> i E t S S' | a.
+#S' -> e S |.
+#E -> b.
 
-#E -> T E'.
-#E' -> + T E' |.
-#T -> F T'
-#T' -> * F T' |.
+E -> T E'.
+E' -> + T E' |.
+T -> F T'
+T' -> * F T' |.
+F -> ( E ) | id
+
+# 4.1
+#E -> E + T | T
+#T -> T * F | F
 #F -> ( E ) | id
