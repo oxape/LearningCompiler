@@ -1,0 +1,33 @@
+%{
+#include <ctype.h>
+#include <stdio.h>
+#define YYSTYPE int
+void yyerror(const char* msg) {printf("%s", msg);}
+int yywrap(){return 1;}
+#include "lex.yy.c"
+%}
+
+%token NUMBER
+
+%%
+lines   : lines expr '\n'         { printf("%d\n", $2); }
+        | lines '\n'
+        |
+        ;
+expr    : expr '+' term      { $$ = $1 + $3; }
+        | term
+        ;
+term    : term '*' factor   { $$ = $1 * $3; }
+        | factor
+        ;
+factor  : '(' expr ')'      { $$ = $2; }
+        | NUMBER
+        ;
+%%
+int main(void)
+{
+//  extern int yyparse(void);
+    yydebug=1;
+    yyparse();
+    return 0;
+}
