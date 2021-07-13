@@ -3,7 +3,7 @@
 #include <stdio.h>
 #define YYSTYPE int
 void yyerror(const char* msg) {printf("%s", msg);}
-int yywrap(){return 1;}
+int yywrap(){return 1;} //一些库的实现没有自带默认的yywrap和main，需要自己实现
 #include "lex.yy.c"
 %}
 
