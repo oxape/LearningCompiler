@@ -31,6 +31,7 @@
 3.9 optimization of dfa-based pattern matchers
 3.10 summary of chapter 3
 3.11 references for chapter 3
+
 4 syntax analysis
 4.1 introduction
 4.2 context-free grammars
@@ -43,6 +44,7 @@
 4.9 parser generators
 4.10 summary of chapter 4
 4.11 references for chapter 4
+
 5 syntax-directed translation
 5.1 syntax-directed definitions
 5.2 evaluation orders for sdd's
@@ -51,6 +53,7 @@
 5.5 hnplementing l-attributed sdd's
 5.6 summary of chapter 5
 5.7 references for chapter 5
+
 6 intermediate-code generation
 6.1 variants of syntax trees
 6.2 three-address code
@@ -63,6 +66,7 @@
 6.9 intermediate code for procedures
 6.10 summary of chapter 6
 6.11 references for chapter 6
+
 7 run-time environments
 7.1 storage organization
 7.2 stack allocation of space
@@ -74,6 +78,7 @@
 7.8 advanced topics in garbage collection
 7.9 summary of chapter 7
 7.10 references for chapter 7
+
 8 code generation
 8.1 issues m the design of a code generator
 8.2 the target language
@@ -88,6 +93,7 @@
 8.11 dynamic programming code-generation
 8.12 summary of chapter 8
 8.13 references for chapter 8
+
 9 machine-independent optimizations
 9.1 the principal sources of optimization
 9.2 introduction to data-flow analysis
@@ -99,6 +105,7 @@
 9.8 symbolic analysis
 9.9 summary of chapter 9
 9.10 references for chapter 9
+
 10 instruction-level parallelism
 10.1 processor architectures
 10.2 code-scheduling constraints
@@ -107,6 +114,7 @@
 10.5 software pipelining
 10.6 summary of chapter 10
 10.7 references for chapter 10
+
 11 optimizing for parallelism and locality
 11.1 basic concepts
 11.2 matrix multiply: an in-depth example
@@ -121,6 +129,7 @@
 11.11 other uses of affine transforms
 11.12 summarv of chapter 11
 11.13 references for chapter 11
+
 12 interprocedural analysis
 12.1 basic concepts
 12.2 why interprocedural analysis?
@@ -131,6 +140,7 @@
 12.7 datalog implementation by bdd's
 12.8 summary of chapter 12
 12.9 references for chapter 12
+
 a a complete front end
 a.1 the source language
 a.2 main

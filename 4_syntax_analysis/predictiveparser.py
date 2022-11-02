@@ -4,6 +4,8 @@ import os
 from tabulate import tabulate
 import logging
 
+# 编译原理  4.4.3 生成LL(1)文法对应的预测分析表
+
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
