@@ -10,10 +10,10 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-from syntax_analysis.firstfollow import parse_file
-from syntax_analysis.firstfollow import first_and_follow
-from syntax_analysis.firstfollow import ListAndSet
-from syntax_analysis.firstfollow import epsilon
+from firstfollow import parse_file
+from firstfollow import first_and_follow
+from firstfollow import ListAndSet
+from firstfollow import epsilon
 
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
