@@ -1,12 +1,16 @@
 %{
 #include <ctype.h>
 #include <stdio.h>
+#include "lex.yy.c"
+
 #define YYSTYPE int
+
+int yylval;
+
 void yyerror(const char* msg) {printf("%s", msg);}
 int yywrap(){return 1;} //一些库的实现没有自带默认的yywrap和main，需要自己实现
 
-#include "lex.yy.c"
-int yylval;
+
 %}
 
 %token NUMBER

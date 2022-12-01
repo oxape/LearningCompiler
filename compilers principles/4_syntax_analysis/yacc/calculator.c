@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "translator.tab.c"
+#include "parser.tab.h"
 
+extern int yyparse(void);
 
 int main(void)
 {
