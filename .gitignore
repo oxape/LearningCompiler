@@ -1,6 +1,9 @@
 .vscode
 .idea
 
+**/lex.yy.c
+**/translator.tab.c
+
 ### C
 # Prerequisites
 *.d

@@ -1,5 +1,5 @@
 %{
-#include "translate.tab.h"
+extern int yylval;
 %}
 
 number      [0-9]+\.?
