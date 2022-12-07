@@ -12,18 +12,54 @@
 6. 从正则表达式构造DFA
 7. 最小化DFA
 
+## 正则表达式的文法
+
+### 简单
+参考:https://matt.might.net/articles/parsing-regex-with-recursive-descent/
+
+把参考中的扩展巴科斯范式(EBNF)改成了巴科斯范式(BNF)
+
+    <regex>	::=	<term> '|' <regex> | <term>
+    <term>	::=	<factor> <term> | Ɛ
+    <factor> ::= <base> '*' | Ɛ
+    <base>	::= <char> | '\' <char> | '(' <regex> ')'
+
+### 复杂
+参考:https://www2.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
+
+    <RE>	::=	<union> | <simple-RE>
+    <union>	::=	<RE> "|" <simple-RE>
+    <simple-RE>	::=	<concatenation> | <basic-RE>
+    <concatenation>	::=	<simple-RE> <basic-RE>
+    <basic-RE>	::=	<star> | <plus> | <elementary-RE>
+    <star>	::=	<elementary-RE> "*"
+    <plus>	::=	<elementary-RE> "+"
+    <elementary-RE>	::=	<group> | <any> | <eos> | <char> | <set>
+    <group>	::=	"(" <RE> ")"
+    <any>	::=	"."
+    <eos>	::=	"$"
+    <char>	::=	any non metacharacter | "\" metacharacter
+    <set>	::=	<positive-set> | <negative-set>
+    <positive-set>	::=	"[" <set-items> "]"
+    <negative-set>	::=	"[^" <set-items> "]"
+    <set-items>	::=	<set-item> | <set-item> <set-items>
+    <set-items>	::=	<range> | <char>
+    <range>	::=	<char> "-" <char>
+
+使用递归下降分析正则表达式，首先需要消除左递归
+
 ## 支持的正则表达式
 1. a
 2. a|b
 3. ab
 4. a*
-5. a?
-6. a+
-7. [ab]
-8. [^ab]
-9. [a-zA-Z]
-10. [^a-zA-Z]
-11. (a|b)
+5. (a|b)
+6. a?
+7. a+
+8. [ab]
+9. [^ab]
+10. [a-zA-Z]
+11. [^a-zA-Z]
 12. \\
 
 ## 实现一个词法分析器
@@ -77,3 +113,10 @@
 另一种体系结构和Lex的输出相似，它使用算法3.20中的子集构造法将表示所有模式的NFA转换为等价的DFA。在DFA的每个状态中，如果该状态包含一个或多个NFA的接收状态，那么就要确定哪些模式的接受状态出现在此DFA状态中，并找出第一个这样的模式。然后将该模式作为这个DFA状态的输出。
 
 在词法分析器中，我们使用DFA的方法与使用NFA的方法很类似。我们模拟这个DFA的运行，直到在某一点上没有后续状态为止(严格地说应该是下一个状态为$\varnothing$，即对应于空的NFA的状态集合的死状态)。此时我们回头查找我们进入过的状态序列，一旦找到接收状态就执行与状态对应的模式关联的动作
+
+
+## 实现方法
+1. 递归预测分析法
+2. 非递归的预测分析法
+
+    通过维护栈而不是递归调用隐式地维护栈

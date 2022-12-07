@@ -1,5 +1,6 @@
 .vscode
 .idea
+**/tmp
 
 **/lex.yy.c
 **/translator.tab.c
