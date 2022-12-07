@@ -19,18 +19,27 @@
 
 把参考中的扩展巴科斯范式(EBNF)改成了巴科斯范式(BNF)
 
-    <regex>	::=	<term> '|' <regex> | <term>
+    <regex>	::=	<term> '|' <term> | <term>
     <term>	::=	<factor> <term> | Ɛ
-    <factor> ::= <base> '*' | Ɛ
+    <factor> ::= <base> '*' | <base>
     <base>	::= <char> | '\' <char> | '(' <regex> ')'
+
+
+    <RE>	::=	<union>
+    <union>	::=	<concatenation> "|" <concatenation> | <concatenation>
+    <concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
+    <basic-RE>	::=	<elementary-RE> "*" | <elementary-RE>
+    <elementary-RE>	::=	<group> | <char>
+    <group>	::=	"(" <RE> ")"
+    <char>	::=	any non metacharacter | "\" metacharacter
 
 ### 复杂
 参考:https://www2.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
 
     <RE>	::=	<union> | <simple-RE>
-    <union>	::=	<RE> "|" <simple-RE>
+    <union>	::=	<simple-RE> "|" <simple-RE> <union>
     <simple-RE>	::=	<concatenation> | <basic-RE>
-    <concatenation>	::=	<simple-RE> <basic-RE>
+    <concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
     <basic-RE>	::=	<star> | <plus> | <elementary-RE>
     <star>	::=	<elementary-RE> "*"
     <plus>	::=	<elementary-RE> "+"

@@ -66,15 +66,55 @@ class RegExParser:
         return self.regex()
 
     def regex(self):
-        term = self.term()
+        union = self.union()
+        return union
 
+    def union(self):
+        concatenation_fisrt = self.concatenation()
         if self.more() and self.peek() == '|':
             self.eat('|')
-            regex = self.regex()
-            return ASTNode('|', term, regex)
+            concatenation_second = self.concatenation()
+            return ASTNode('|', concatenation_fisrt, concatenation_second)
         else:
-            return term
+            return concatenation_fisrt
 
+    def concatenation(self):
+        basic_regex_first = self.basic_regex()
+        #判断peek属于basic_regex follow，这里已经要判断好，后面如果是'|'和')'需要返回交给上层解析
+        if self.more() and self.peek() != '|' and self.peek() != ')':
+            basic_regex_second = self.basic_regex()
+            return ASTNode('·', basic_regex_first, basic_regex_second)
+        else:
+            return basic_regex_first
+
+    def basic_regex(self):
+        elementary_regex_first = self.elementary_regex()
+        if self.more() and self.peek() == '*':
+            self.eat('*')
+            return ASTNode('*', elementary_regex_first)
+        else:
+            return elementary_regex_first
+    
+    def elementary_regex(self):
+        if self.peek() == '(':
+            return self.group()
+        else:
+            return self.char()
+
+    def group(self):
+        self.eat('(')
+        r = self.regex()
+        self.eat(')')
+        return r
+
+    def char(self):
+        if self.peek() == '\\':
+            self.eat('\\')
+            esc = self.next()
+            return ASTNode(esc)
+        else:
+            return ASTNode(self.next())
+### 以下为无效的解析
     def term(self):
         factor = self.factor()
         #判断peek不属于term follow
