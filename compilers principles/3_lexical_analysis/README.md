@@ -4,8 +4,8 @@
 
     关键步骤需要构造语法分析树
 
-3. NFA转DFA(算法3.20 page113)
-2. 输入缓存
+2. NFA转DFA(算法3.20 page113)
+3. 输入缓存
 
 4. NFA模拟(算法3.22 page115)
 5. 求闭包
@@ -14,32 +14,15 @@
 
 ## 正则表达式的文法
 
-### 简单
-参考:https://matt.might.net/articles/parsing-regex-with-recursive-descent/
+### 文法
+参考1:https://matt.might.net/articles/parsing-regex-with-recursive-descent/
 
-把参考中的扩展巴科斯范式(EBNF)改成了巴科斯范式(BNF)
-
-    <regex>	::=	<term> '|' <term> | <term>
-    <term>	::=	<factor> <term> | Ɛ
-    <factor> ::= <base> '*' | <base>
-    <base>	::= <char> | '\' <char> | '(' <regex> ')'
-
-
-    <RE>	::=	<union>
-    <union>	::=	<concatenation> "|" <concatenation> | <concatenation>
-    <concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
-    <basic-RE>	::=	<elementary-RE> "*" | <elementary-RE>
-    <elementary-RE>	::=	<group> | <char>
-    <group>	::=	"(" <RE> ")"
-    <char>	::=	any non metacharacter | "\" metacharacter
-
-### 复杂
-参考:https://www2.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
+参考2:https://www2.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
 
     <RE>	::=	<union> | <simple-RE>
-    <union>	::=	<simple-RE> "|" <simple-RE> <union>
+    <union>	::=	<RE> "|" <simple-RE>
     <simple-RE>	::=	<concatenation> | <basic-RE>
-    <concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
+    <concatenation>	::=	<simple-RE> <basic-RE>
     <basic-RE>	::=	<star> | <plus> | <elementary-RE>
     <star>	::=	<elementary-RE> "*"
     <plus>	::=	<elementary-RE> "+"
@@ -54,6 +37,30 @@
     <set-items>	::=	<set-item> | <set-item> <set-items>
     <set-items>	::=	<range> | <char>
     <range>	::=	<char> "-" <char>
+
+参考了参考1的代码，使用了参考2的文法改未扩展的正则表达式
+
+    <RE>	::=	<union> | <simple-RE>
+    <union>	::=	<RE> "|" <simple-RE>
+    <simple-RE>	::=	<concatenation> | <basic-RE>
+    <concatenation>	::=	<simple-RE> <basic-RE>
+    <basic-RE>	::=	<star> | <elementary-RE>
+    <star>	::=	<elementary-RE> "*"
+    <elementary-RE>	::=	<group> | <char>
+    <group>	::=	"(" <RE> ")"
+    <char>	::=	any non metacharacter | "\" metacharacter
+
+### 消除左递归
+
+    <RE>	::=	<union>
+    <union>	::=	<concatenation> "|" <union> | <concatenation>
+    <concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
+    <basic-RE>	::=	<elementary-RE> "*" | <elementary-RE>
+    <elementary-RE>	::=	<group> | <char>
+    <group>	::=	"(" <RE> ")"
+    <char>	::=	any non metacharacter | "\" metacharacter
+
+### 实现
 
 使用递归下降分析正则表达式，首先需要消除左递归
 

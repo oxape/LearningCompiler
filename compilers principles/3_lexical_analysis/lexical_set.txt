@@ -1,2 +1,4 @@
+(a|b)*abb
 (a|bb)*abb
+abb
 (a|b)+[1-9a-z]*
