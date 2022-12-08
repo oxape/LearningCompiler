@@ -103,10 +103,11 @@ class NFA:
     def construct_closure(self, node):
         start_state = self.new_state() # start_state = self.new_state() 必须放在开始位置
         next_state0, final_state0 = self.construct(node.children[0])
-        self.add_transition(start_state, next_state0, self.Ɛ)
         final_state = self.new_state() # final_state = self.new_state() 必须放在结束位置
         self.add_transition(final_state0, final_state, self.Ɛ)
-        self.add_transition(next_state0, final_state0, self.Ɛ)
+        self.add_transition(start_state, next_state0, self.Ɛ)
+        self.add_transition(final_state0, next_state0, self.Ɛ)
+        self.add_transition(start_state, final_state0, self.Ɛ)
         self.final_state_set.remove(final_state0)
         self.final_state_set.add(final_state)
         return start_state, final_state
@@ -138,7 +139,7 @@ class NFA:
                     edge_label = 'Ɛ'
                 dg.edge(str(self.start), str(to_state), label=edge_label, color='black') #连接
                 print(f'{self.start} -{edge_label}-> {to_state}')
-        dg.render(filename='tmp/nfa', view=True)
+        dg.render(filename='tmp/nfa.gv', view=True)
 
     @classmethod
     def _build_graph(cls, dg, record_set, state_map, final_set, state):
@@ -177,7 +178,7 @@ class ASTNode:
         for child in self.children:
             ASTNode._build_graph(g, child) #构建子节点
             g.edge(self.uuid, child.uuid, color='black') #连接
-        g.render(filename='tmp/g', view=True)
+        g.render(filename='tmp/g.gv', view=True)
 
     @classmethod
     def _build_graph(cls, g, node):
