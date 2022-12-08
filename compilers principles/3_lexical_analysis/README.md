@@ -38,7 +38,7 @@
     <set-items>	::=	<range> | <char>
     <range>	::=	<char> "-" <char>
 
-参考了参考1的代码，使用了参考2的文法改未扩展的正则表达式
+参考了参考1的代码，使用了参考2的文法改成未扩展的正则表达式
 
     <RE>	::=	<union> | <simple-RE>
     <union>	::=	<RE> "|" <simple-RE>
