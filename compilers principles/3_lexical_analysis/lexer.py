@@ -82,6 +82,8 @@ class NFA:
         final_state = self.new_state() # final_state = self.new_state() 必须放在结束位置
         self.add_transition(final_state0, final_state, self.Ɛ)
         self.add_transition(final_state1, final_state, self.Ɛ)
+        self.final_state_set.remove(final_state0)
+        self.final_state_set.remove(final_state1)
         self.final_state_set.add(final_state)
         return start_state, final_state
 
@@ -105,6 +107,7 @@ class NFA:
         final_state = self.new_state() # final_state = self.new_state() 必须放在结束位置
         self.add_transition(final_state0, final_state, self.Ɛ)
         self.add_transition(next_state0, final_state0, self.Ɛ)
+        self.final_state_set.remove(final_state0)
         self.final_state_set.add(final_state)
         return start_state, final_state
 
