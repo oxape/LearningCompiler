@@ -1,10 +1,16 @@
-## 1_introduction
+## compilers principles
+
+### 1_introduction
 
 2.4.2 预测分析法
 
 parser.py
 
-## 4_syntax_analysis
+### 3_lexical_analysis
+
+lexer.py 词法分析
+
+### 4_syntax_analysis
 
 4.4.2 FIRST和FOLLOW
 
