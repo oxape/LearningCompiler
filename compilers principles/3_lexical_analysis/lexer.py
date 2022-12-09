@@ -213,11 +213,13 @@ class RegExParser:
     def parse(self):
         return self.regex()
 
+    # 实现<RE>	::=	<union>
     @FnLogging
     def regex(self):
         union = self.union()
         return union
 
+    # 实现<union>	::=	<concatenation> "|" <union> | <concatenation>
     @FnLogging
     def union(self):
         concatenation = self.concatenation()
@@ -227,6 +229,7 @@ class RegExParser:
             concatenation = ASTNode('|', concatenation, union)
         return concatenation
 
+    # 实现<concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
     @FnLogging
     def concatenation(self):
         basic_regex = self.basic_regex()
@@ -237,6 +240,7 @@ class RegExParser:
             basic_regex = ASTNode('·', basic_regex, basic_regex_next)
         return basic_regex
 
+    # 实现<basic-RE>	::=	<elementary-RE> "*" | <elementary-RE>
     @FnLogging
     def basic_regex(self):
         elementary_regex_first = self.elementary_regex()
@@ -246,6 +250,7 @@ class RegExParser:
         else:
             return elementary_regex_first
     
+    # 实现<elementary-RE>	::=	<group> | <char>
     @FnLogging
     def elementary_regex(self):
         if self.peek() == '(':
@@ -253,6 +258,7 @@ class RegExParser:
         else:
             return self.char()
 
+    # 实现<group>	::=	"(" <RE> ")"
     @FnLogging
     def group(self):
         self.eat('(')
@@ -260,6 +266,7 @@ class RegExParser:
         self.eat(')')
         return r
 
+    # 实现<char>	::=	any non metacharacter | "\" metacharacter
     @FnLogging
     def char(self):
         if self.peek() == '\\':
