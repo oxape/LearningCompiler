@@ -19,8 +19,121 @@ def FnLogging(fn):
         return ret
     return wrapper
 
+
 class ParseRegError(Exception):
     pass
+
+
+class ASTNode:
+
+    def __init__(self, op, *args):
+        self.op = op
+        self.children = [*args]
+        self.uuid = str(uuid.uuid4())
+
+    def draw(self):
+        g = Graph(format='png')
+        g.node(self.uuid, label=self.op, fontcolor='black')
+        for child in self.children:
+            ASTNode._build_graph(g, child) #构建子节点
+            g.edge(self.uuid, child.uuid, color='black') #连接
+        g.render(filename='tmp/g.gv', view=True)
+
+    @classmethod
+    def _build_graph(cls, g, node):
+        g.node(node.uuid, label=node.op, fontcolor='black')
+        for child in node.children:
+            ASTNode._build_graph(g, child)
+            g.edge(node.uuid, child.uuid, color='black')
+
+
+class RegExParser:
+
+    def __init__(self, input):
+        self.input = input
+
+    def peek(self):
+        return self.input[0]
+
+    def eat(self, c):
+        if self.peek() == c:
+            self.input = self.input[1:]
+        else:
+            raise ParseRegError("Expected: " + c + "; got: " + self.peek())
+
+    def next(self):
+        c = self.peek()
+        self.eat(c)
+        return c
+
+    def more(self):
+        return len(self.input) > 0
+
+    def parse(self):
+        return self.regex()
+
+    # 实现<RE>	::=	<union>
+    @FnLogging
+    def regex(self):
+        union = self.union()
+        return union
+
+    # 实现<union>	::=	<concatenation> "|" <union> | <concatenation>
+    @FnLogging
+    def union(self):
+        concatenation = self.concatenation()
+        while self.more() and self.peek() == '|':
+            self.eat('|')
+            union = self.union()
+            concatenation = ASTNode('|', concatenation, union)
+        return concatenation
+
+    # 实现<concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
+    @FnLogging
+    def concatenation(self):
+        basic_regex = self.basic_regex()
+        # 判断peek属于basic_regex follow，这里一定要判断好，后面如果是'|'和')'需要返回交给上层解析
+        while self.more() and self.peek() != '|' and self.peek() != ')':
+            # 这里和文法略微不一样，按照文法这里应该是concatenation = self.concatenation()
+            basic_regex_next = self.basic_regex()
+            basic_regex = ASTNode('·', basic_regex, basic_regex_next)
+        return basic_regex
+
+    # 实现<basic-RE>	::=	<elementary-RE> "*" | <elementary-RE>
+    @FnLogging
+    def basic_regex(self):
+        elementary_regex_first = self.elementary_regex()
+        if self.more() and self.peek() == '*':
+            self.eat('*')
+            return ASTNode('*', elementary_regex_first)
+        else:
+            return elementary_regex_first
+    
+    # 实现<elementary-RE>	::=	<group> | <char>
+    @FnLogging
+    def elementary_regex(self):
+        if self.peek() == '(':
+            return self.group()
+        else:
+            return self.char()
+
+    # 实现<group>	::=	"(" <RE> ")"
+    @FnLogging
+    def group(self):
+        self.eat('(')
+        r = self.regex()
+        self.eat(')')
+        return r
+
+    # 实现<char>	::=	any non metacharacter | "\" metacharacter
+    @FnLogging
+    def char(self):
+        if self.peek() == '\\':
+            self.eat('\\')
+            esc = self.next()
+            return ASTNode(esc)
+        else:
+            return ASTNode(self.next())
 
 
 class NFA:
@@ -138,7 +251,7 @@ class NFA:
                 if edge == -1:
                     edge_label = 'Ɛ'
                 dg.edge(str(self.start), str(to_state), label=edge_label, color='black') #连接
-                print(f'{self.start} -{edge_label}-> {to_state}')
+                # print(f'{self.start} -{edge_label}-> {to_state}')
         dg.render(filename='tmp/nfa.gv', view=True)
 
     @classmethod
@@ -158,123 +271,12 @@ class NFA:
                 if edge == -1:
                     edge_label = 'Ɛ'
                 dg.edge(str(state), str(to_state), label=edge_label, color='black') #连接
-                print(f'{state} -{edge_label}-> {to_state}')
+                # print(f'{state} -{edge_label}-> {to_state}')
 
 class DFA:
     def __init__(self, nfa):
         pass
 
-
-class ASTNode:
-
-    def __init__(self, op, *args):
-        self.op = op
-        self.children = [*args]
-        self.uuid = str(uuid.uuid4())
-
-    def draw(self):
-        g = Graph(format='png')
-        g.node(self.uuid, label=self.op, fontcolor='black')
-        for child in self.children:
-            ASTNode._build_graph(g, child) #构建子节点
-            g.edge(self.uuid, child.uuid, color='black') #连接
-        g.render(filename='tmp/g.gv', view=True)
-
-    @classmethod
-    def _build_graph(cls, g, node):
-        g.node(node.uuid, label=node.op, fontcolor='black')
-        for child in node.children:
-            ASTNode._build_graph(g, child)
-            g.edge(node.uuid, child.uuid, color='black')
-
-
-class RegExParser:
-
-    def __init__(self, input):
-        self.input = input
-
-    def peek(self):
-        return self.input[0]
-
-    def eat(self, c):
-        if self.peek() == c:
-            self.input = self.input[1:]
-        else:
-            raise ParseRegError("Expected: " + c + "; got: " + self.peek())
-
-    def next(self):
-        c = self.peek()
-        self.eat(c)
-        return c
-
-    def more(self):
-        return len(self.input) > 0
-
-    def parse(self):
-        return self.regex()
-
-    # 实现<RE>	::=	<union>
-    @FnLogging
-    def regex(self):
-        union = self.union()
-        return union
-
-    # 实现<union>	::=	<concatenation> "|" <union> | <concatenation>
-    @FnLogging
-    def union(self):
-        concatenation = self.concatenation()
-        while self.more() and self.peek() == '|':
-            self.eat('|')
-            union = self.union()
-            concatenation = ASTNode('|', concatenation, union)
-        return concatenation
-
-    # 实现<concatenation>	::=	<basic-RE> <concatenation> | <basic-RE>
-    @FnLogging
-    def concatenation(self):
-        basic_regex = self.basic_regex()
-        # 判断peek属于basic_regex follow，这里一定要判断好，后面如果是'|'和')'需要返回交给上层解析
-        while self.more() and self.peek() != '|' and self.peek() != ')':
-            # 这里和文法略微不一样，按照文法这里应该是concatenation = self.concatenation()
-            basic_regex_next = self.basic_regex()
-            basic_regex = ASTNode('·', basic_regex, basic_regex_next)
-        return basic_regex
-
-    # 实现<basic-RE>	::=	<elementary-RE> "*" | <elementary-RE>
-    @FnLogging
-    def basic_regex(self):
-        elementary_regex_first = self.elementary_regex()
-        if self.more() and self.peek() == '*':
-            self.eat('*')
-            return ASTNode('*', elementary_regex_first)
-        else:
-            return elementary_regex_first
-    
-    # 实现<elementary-RE>	::=	<group> | <char>
-    @FnLogging
-    def elementary_regex(self):
-        if self.peek() == '(':
-            return self.group()
-        else:
-            return self.char()
-
-    # 实现<group>	::=	"(" <RE> ")"
-    @FnLogging
-    def group(self):
-        self.eat('(')
-        r = self.regex()
-        self.eat(')')
-        return r
-
-    # 实现<char>	::=	any non metacharacter | "\" metacharacter
-    @FnLogging
-    def char(self):
-        if self.peek() == '\\':
-            self.eat('\\')
-            esc = self.next()
-            return ASTNode(esc)
-        else:
-            return ASTNode(self.next())
 
 def RegExParserTest():
     parser = RegExParser('(a|b)*abb')
@@ -290,27 +292,4 @@ if __name__ == '__main__':
     os.chdir(Path(__file__).parent)
     print(Path(__file__).parent)
 
-    parser = argparse.ArgumentParser('lexer preprocess')
-    parser.add_argument('file_path', type=str)
-    parser.add_argument('--lexis', type=str, required=True)
-    
-    args = parser.parse_args()
-    file_path = args.file_path
-    lexis = args.lexis
-    print(f'file_path = {args.file_path}')
-    print(f'lexis = {args.lexis}')
-    print(f'### args end ###')
-    # with open(lexis, 'r', encoding='utf-8') as fp:
-    #     for line in iter(lambda: fp.readline(), ''):
-    #         print(f'{line.strip()}', end='\n')
-    #         line = line.strip()
-    #         parser = RegExParser(line)
-    #         root = parser.parse()
-    #         root.draw()
-    #         break
     RegExParserTest()
-
-    # with open(file_path, 'r', encoding='utf-8') as fp:
-    #     for chunk in iter(lambda: fp.read(128), ''):
-    #         print(f'{chunk}', end='')
-    print(f'### output end ###')
