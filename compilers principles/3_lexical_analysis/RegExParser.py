@@ -139,6 +139,11 @@ class RegExParser:
 class NFA:
     '''
         nfa = {状态集, 字母表, 转移函数, 初始状态, 接收状态}
+
+        nfa_state_map = {
+            1: {a: set({3}), b: set({2})},
+            2: {a: set({4}), b: set({5, 6})}
+        }
     '''
     Ɛ = -1 # Ɛ边为-1
     def __init__(self, astree): #从正则表达式的语法树构建NFA
@@ -274,8 +279,20 @@ class NFA:
                 # print(f'{state} -{edge_label}-> {to_state}')
 
 class DFA:
+    '''
+        dfa = {状态集, 字母表, 转移函数, 初始状态, 接收状态}
+
+        dfa_state_map = {
+            1: {a: 3, b: 2},
+            2: {a: 4, b: 5}
+        }
+    '''
     def __init__(self, nfa):
-        pass
+        self.dfa_state_map = {}
+        self.final_state_set = set()
+        self.letter_set = set() # 调试用
+        self.start = -1
+        self.state = -1 # 这样初始状态就会从0开始
 
 
 def RegExParserTest():
