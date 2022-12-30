@@ -1,3 +1,4 @@
+以下页码都是pdf页码，不是书本实际页码
 
 ## 小任务
 
@@ -8,7 +9,37 @@
 2. 消除左递归
 3. 使用递归下降法，构建语法分析树
 4. 从语法分析树构建NFA
-5. NFA
+5. NFA转DFA(算法3.20 page113)
+    
+    使用子集构造法，关键点是要实现closure和move
+
+
+#### 问题
+
+产生了两个结果
+
+<table>
+<tbody>
+<tr><td>NFA states            </td><td>DFA states</td><td>a</td><td>b</td></tr>
+<tr><td>[0, 1, 2, 4, 7]       </td><td>A         </td><td>B</td><td>C</td></tr>
+<tr><td>[1, 2, 3, 4, 6, 7, 8] </td><td>B         </td><td>B</td><td>D</td></tr>
+<tr><td>[1, 2, 4, 5, 6, 7]    </td><td>C         </td><td>B</td><td>C</td></tr>
+<tr><td>[1, 2, 4, 5, 6, 7, 9] </td><td>D         </td><td>B</td><td>E</td></tr>
+<tr><td>[1, 2, 4, 5, 6, 7, 10]</td><td>E         </td><td>B</td><td>C</td></tr>
+</tbody>
+</table>
+
+
+<table>
+<tbody>
+<tr><td>NFA states            </td><td>DFA states</td><td>a</td><td>b</td></tr>
+<tr><td>[0, 1, 2, 4, 7]       </td><td>A         </td><td>C</td><td>B</td></tr>
+<tr><td>[1, 2, 4, 5, 6, 7]    </td><td>B         </td><td>C</td><td>B</td></tr>
+<tr><td>[1, 2, 3, 4, 6, 7, 8] </td><td>C         </td><td>C</td><td>D</td></tr>
+<tr><td>[1, 2, 4, 5, 6, 7, 9] </td><td>D         </td><td>C</td><td>E</td></tr>
+<tr><td>[1, 2, 4, 5, 6, 7, 10]</td><td>E         </td><td>C</td><td>B</td></tr>
+</tbody>
+</table>
 
 ## 第3章需要实现
 

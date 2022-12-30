@@ -4,6 +4,8 @@ import uuid
 from pathlib import Path
 from graphviz import Graph, Digraph
 from functools import wraps
+from tabulate import tabulate
+from collections import OrderedDict
 
 func_count_dict = {}
 
@@ -150,7 +152,7 @@ class NFA:
         self.astree = astree
         self.nfa_state_map = {}
         self.final_state_set = set()
-        self.letter_set = set() # 调试用
+        self.letter_set = set()
         self.start = -1
         self.state = -1 # 这样初始状态就会从0开始
         self.op_construct_method = {
@@ -225,7 +227,7 @@ class NFA:
         self.add_transition(final_state0, final_state, self.Ɛ)
         self.add_transition(start_state, next_state0, self.Ɛ)
         self.add_transition(final_state0, next_state0, self.Ɛ)
-        self.add_transition(start_state, final_state0, self.Ɛ)
+        self.add_transition(start_state, final_state, self.Ɛ)
         self.final_state_set.remove(final_state0)
         self.final_state_set.add(final_state)
         return start_state, final_state
@@ -287,12 +289,90 @@ class DFA:
             2: {a: 4, b: 5}
         }
     '''
-    def __init__(self, nfa):
-        self.dfa_state_map = {}
+    Ɛ = -1 # Ɛ边为-1
+    def __init__(self):
+        self.nfa_states_map = OrderedDict() # 每个key是NFA中的一个状态集
+        self.nfa_ss2s_map = {} # 每个NFA状态集映射一个DFA状态
+        self.dfa_state_map = {} # DFA状态沿着边到DFA状态
         self.final_state_set = set()
-        self.letter_set = set() # 调试用
+        self.letter_set = set()
         self.start = -1
-        self.state = -1 # 这样初始状态就会从0开始
+        self.state = ord('A') # 这样初始状态就会从0开始
+
+    def new_state(self):
+        new_state = chr(self.state)
+        self.state += 1
+        return new_state
+
+    def nfa2dfa(self, nfa):
+        def closure(nfa_state_map, T):
+            stack = list(T)
+            closure_set = set(T)
+            while len(stack) > 0:
+                t = stack.pop()
+                state_set = nfa_state_map[t].get(self.Ɛ, None)
+                if state_set is None:
+                    continue
+                for u in state_set:
+                    if u not in closure_set:
+                        closure_set.add(u)
+                        stack.append(u)
+            return closure_set
+
+        def move(nfa_state_map, T, edge):
+            move_set = set()
+            for t in T:
+                state_set = nfa_state_map[t].get(edge, None)
+                if state_set is None:
+                    continue
+                for u in state_set:
+                    if u not in move_set:
+                        move_set.add(u)
+            return move_set
+        
+        self.letter_set = set(nfa.letter_set)
+        t0 = closure(nfa.nfa_state_map, {nfa.start})
+        t0 = frozenset(t0)
+        mark_set = set()
+        Dstates = list([t0])
+        while len(Dstates) > 0:
+            ts = Dstates.pop(0) #Dstates相当于一个FIFO队列
+            if ts in mark_set:
+                continue
+            mark_set.add(ts)
+            if self.nfa_states_map.get(ts, None) is None:
+                if self.nfa_ss2s_map.get(ts, None) is None:
+                    self.nfa_ss2s_map[ts] = self.new_state()
+                self.nfa_states_map[ts] = {}
+                self.dfa_state_map[self.nfa_ss2s_map[ts]] = {}
+            for letter in nfa.letter_set:
+                U = closure(nfa.nfa_state_map, move(nfa.nfa_state_map, ts, letter))
+                U = frozenset(U)
+                if U not in Dstates: # 这里没有不能使用frozenset作为key判断not in时，可以将set中元素排序后变成字符串作为key
+                    Dstates.append(U)
+                if self.nfa_ss2s_map.get(U, None) is None:
+                    self.nfa_ss2s_map[U] = self.new_state()
+                self.nfa_states_map[ts][letter] = U
+                self.dfa_state_map[self.nfa_ss2s_map[ts]][letter] = self.nfa_ss2s_map[U]
+        # print(self.nfa_ss2s_map)
+        # print(self.dfa_state_map)
+    
+    def print_table(self):
+        headers = ['NFA states', 'DFA states']
+        letter_list = list(self.letter_set)
+        letter_list.sort()
+        headers.extend(letter_list)
+        table = [headers]
+        for nfa_states, value in self.nfa_states_map.items():
+            rows = [list(nfa_states)]
+            rows.append(self.nfa_ss2s_map[nfa_states])
+            for letter in letter_list:
+                to_states = value.get(letter, None)
+                if to_states is None:
+                    continue
+                rows.append(self.nfa_ss2s_map[to_states])
+            table.append(rows)
+        print(tabulate(table, tablefmt='grid'))
 
 
 def RegExParserTest():
@@ -302,8 +382,10 @@ def RegExParserTest():
     # root.draw()
     nfa = NFA(root)
     nfa.construct_nfa()
-    nfa.draw()
-    print(nfa)
+    # nfa.draw()
+    dfa = DFA()
+    dfa.nfa2dfa(nfa)
+    dfa.print_table()
 
 if __name__ == '__main__':
     os.chdir(Path(__file__).parent)
